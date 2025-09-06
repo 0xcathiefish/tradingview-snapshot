@@ -2,6 +2,8 @@
 
 # MCP Server - TradingView Chart Image Scraper
 
+**Note**: This fork extends the original project by adding a standalone **FastAPI HTTP server (`api.py`)** and **Docker support** for easy, containerized deployment.
+
 **🚀 Now with Browser Pooling Optimization for 70-80% Better Concurrent Performance!**
 
 This MCP server provides tools to fetch TradingView chart images based on ticker and interval with advanced browser pooling for maximum concurrent performance.
@@ -32,6 +34,9 @@ This MCP server provides tools to fetch TradingView chart images based on ticker
 - **⚙️ Environment Configuration:** Fully configurable via environment variables
 - **🔐 TradingView Authentication:** Secure session-based authentication
 - **💾 Clipboard Capture:** Direct base64 image capture for faster performance
+- **🌐 Standalone FastAPI Server:** Exposes the scraping functionality via a simple `/chart` HTTP endpoint for easy integration with any application.
+- **🐳 Dockerized Deployment:** Includes `Dockerfile` and `docker-compose.yml` for quick and consistent setup.
+
 
 ## Tools
 
@@ -106,11 +111,11 @@ This MCP server provides tools to fetch TradingView chart images based on ticker
       ```
     - **Windows (Command Prompt):**
       ```bash
-      .venv\\Scripts\\activate.bat
+      .venv\Scripts\activate.bat
       ```
     - **Windows (PowerShell):**
       ```bash
-      .venv\\Scripts\\Activate.ps1
+      .venv\Scripts\Activate.ps1
       ```
       _(Note: You might need to adjust PowerShell execution policy: `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`)_
 
@@ -156,6 +161,60 @@ python main_optimized.py --max-concurrent 6
 # Disable browser pooling (fallback to traditional)
 python main_optimized.py --disable-pooling
 ```
+
+## Running as a Standalone HTTP API
+
+This fork includes an `api.py` file that runs a simple FastAPI server, making the chart scraper accessible via a standard HTTP GET request.
+
+1.  **Ensure Dependencies are Installed:**
+    Follow the main `Setup` instructions to install requirements from `requirements.txt`.
+
+2.  **Run the API Server:**
+    ```bash
+    # Make sure your .env file is configured with your credentials
+    uvicorn api:app --host 0.0.0.0 --port 8003
+    ```
+
+3.  **API Endpoint:** `GET /chart`
+
+    **Query Parameters:**
+    - `ticker` (str): The TradingView ticker symbol (e.g., "BYBIT:BTCUSDT.P"). **Required**.
+    - `interval` (str): The chart time interval. **Required**. This must be a string representing minutes (e.g., '1', '5', '60'), or 'D' for daily, 'W' for weekly. For example, `1h` is not valid; use `60` instead.
+
+4.  **Example Usage (with curl):**
+    ```bash
+    curl "http://localhost:8003/chart?ticker=NASDAQ:AAPL&interval=60"
+    
+    curl "http://localhost:8003/chart?ticker=BYBIT:BTCUSDT.P&interval=240"
+    ```
+
+5.  **Success Response (JSON):**
+    ```json
+    {
+      "ticker": "NASDAQ:AAPL",
+      "interval": "D",
+      "image_url": "https://s3.tradingview.com/snapshots/..."
+    }
+    ```
+
+## 🐳 Running with Docker
+
+For easy and consistent deployment, this fork includes a `Dockerfile` and `docker-compose.yml`.
+
+1.  **Configure Environment:**
+    Copy `.env.example` to `.env` and fill in your TradingView session credentials. The `docker-compose.yml` file is configured to pass these variables to the container.
+
+2.  **Build and Run the Container:**
+    ```bash
+    # This will build the image and start the API service in the background
+    docker compose up -d --build
+    ```
+    The API will be available at `http://localhost:8003`.
+
+3.  **Stopping the Service:**
+    ```bash
+    docker compose down
+    ```
 
 ## 🧪 Performance Testing
 
@@ -278,7 +337,7 @@ This server supports two ways of providing configuration:
 ### Claude Desktop
 
 1.  Open your Claude Desktop configuration file:
-    - **Windows:** `%APPDATA%\\Claude\\claude_desktop_config.json`
+    - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
     - **macOS:** `~/Library/Application\ Support/Claude/claude_desktop_config.json`
 2.  Add or merge the following within the `mcpServers` object. Provide your credentials in the `env` block:
 

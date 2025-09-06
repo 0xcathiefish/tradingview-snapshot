@@ -1,23 +1,22 @@
-
 import os
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from dotenv import load_dotenv
 
-# 唯一的依赖，就是那个我们已经验证过可以成功运行的 scraper
+# The only dependency is the scraper we've already verified works.
 from tview_scraper import TradingViewScraper, TradingViewScraperError
 
-# 加载环境变量 (.env 文件)
+# Load environment variables (from .env file)
 load_dotenv()
 
-# --- FastAPI 应用设置 ---
+# --- FastAPI App Setup ---
 app = FastAPI(
     title="Simple TradingView Chart API",
     description="A clean, minimal API that strictly follows the successful tview_scraper.py logic.",
     version="1.0.0"
 )
 
-# --- 核心 API 接口 ---
+# --- Core API Endpoint ---
 @app.get("/chart")
 def get_chart(ticker: str, interval: str):
     """
@@ -33,20 +32,20 @@ def get_chart(ticker: str, interval: str):
         #  vvv   THIS IS THE EXACT LOGIC FROM THE SUCCESSFUL EXAMPLE   vvv
         # ====================================================================
 
-        # 1. 创建 Scraper 实例 (和例程一样)
+        # 1. Create a Scraper instance (same as the example)
         with TradingViewScraper(
             headless=True,
             chart_page_id=chart_page_id
         ) as scraper:
             
             print("Attempting to capture screenshot link...")
-            # 2. 调用 get_screenshot_link() 获取原始分享链接 (和例程一样)
+            # 2. Call get_screenshot_link() to get the raw share link (same as the example)
             raw_link = scraper.get_screenshot_link(ticker=ticker, interval=interval)
             if not raw_link:
                 raise TradingViewScraperError("Scraper did not return a raw share link.")
 
             print(f"Raw clipboard data received: {raw_link}")
-            # 3. 将原始链接转换为最终图片链接 (和例程一样)
+            # 3. Convert the raw link to the final image link (same as the example)
             #image_url = scraper.convert_link_to_image_url(raw_link)
             image_url = raw_link
             if not image_url:
@@ -61,14 +60,14 @@ def get_chart(ticker: str, interval: str):
 
     except Exception as e:
         print(f"An error occurred: {e}")
-        # 如果出错，返回一个标准的服务器错误
+        # If an error occurs, return a standard server error
         raise HTTPException(status_code=500, detail=str(e))
 
-# --- 健康检查接口 ---
+# --- Health Check Endpoint ---
 @app.get("/")
 def read_root():
     return {"status": "ok"}
 
-# --- 启动命令 ---
+# --- Startup Command ---
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8003)
