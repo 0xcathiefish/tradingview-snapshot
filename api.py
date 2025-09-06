@@ -46,8 +46,8 @@ def get_chart(ticker: str, interval: str):
 
             print(f"Raw clipboard data received: {raw_link}")
             # 3. Convert the raw link to the final image link (same as the example)
-            #image_url = scraper.convert_link_to_image_url(raw_link)
-            image_url = raw_link
+            image_url = scraper.convert_link_to_image_url(raw_link)
+            #image_url = raw_link
             if not image_url:
                  raise TradingViewScraperError("Failed to convert raw share link to an image URL.")
 
@@ -56,7 +56,7 @@ def get_chart(ticker: str, interval: str):
         # ====================================================================
         
         print(f"Success! Final Image Link: {image_url}")
-        return {"ticker": ticker, "interval": interval, "image_url": image_url}
+        return {"ticker": ticker, "interval": interval, "image_url": raw_link, "png_url":image_url}
 
     except Exception as e:
         print(f"An error occurred: {e}")

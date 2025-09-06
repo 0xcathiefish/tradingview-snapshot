@@ -1,7 +1,7 @@
 services:
   # TradingView snapshot API service 
   api:
-    image: ghcr.io/0xcathiefish/tradingview-snapshot:v1.1
+    image: ghcr.io/0xcathiefish/tradingview-snapshot:v1.2
     container_name: tradingview-snapshot
     
     env_file:
