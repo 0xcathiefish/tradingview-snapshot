@@ -62,7 +62,7 @@ class TradingViewScraper:
     # --- Constants ---
     TRADINGVIEW_BASE_URL = "https://www.tradingview.com"
     TRADINGVIEW_CHART_BASE_URL = "https://in.tradingview.com/chart/"
-    DEFAULT_CHART_PAGE_ID = "XHDbt5Yy"
+    DEFAULT_CHART_PAGE_ID = "hQkQMO1q"
     SESSION_ID_COOKIE = "sessionid"
     SESSION_ID_SIGN_COOKIE = "sessionid_sign"
     SESSION_ID_ENV_VAR = "TRADINGVIEW_SESSION_ID"
@@ -72,7 +72,7 @@ class TradingViewScraper:
     MAX_CLIPBOARD_ATTEMPTS = 5  # Number of retries for clipboard read
     CLIPBOARD_RETRY_INTERVAL = 1  # seconds between attempts (traditional method)
     # Ultra-optimized intelligent waiting - much faster than previous versions
-    MAX_CHART_WAIT_TIME = 6  # Maximum time for chart elements (reduced from 8s)
+    MAX_CHART_WAIT_TIME = 6  # Maximum time for chart elements (increased for stability)
     # Optimized clipboard handling with method-specific timeouts
     MAX_CLIPBOARD_WAIT_TIME = (
         3  # Maximum time for text clipboard polling (reduced from 4s)
@@ -1082,7 +1082,7 @@ class TradingViewScraper:
         try:
             # Attempt to set auth cookies
             if not self._set_auth_cookies_optimized(
-                f"{self.TRADINGVIEW_CHART_BASE_URL}{self.chart_page_id}/?symbol={ticker}&interval={interval}"
+                f"{self.TRADINGVIEW_CHART_BASE_URL}{self.chart_page_id}/?symbol={ticker}&interval={interval}&theme=dark"
             ):
                 self.logger.warning(
                     "Proceeding without guaranteed authentication (cookies not set)."
@@ -1090,7 +1090,7 @@ class TradingViewScraper:
 
             # Navigate to chart
             self._navigate_and_wait(
-                f"{self.TRADINGVIEW_CHART_BASE_URL}{self.chart_page_id}/?symbol={ticker}&interval={interval}"
+                f"{self.TRADINGVIEW_CHART_BASE_URL}{self.chart_page_id}/?symbol={ticker}&interval={interval}&theme=dark"
             )
 
             # Clear browser clipboard before reading
@@ -1154,14 +1154,14 @@ class TradingViewScraper:
         try:
             # Attempt to set auth cookies, proceed even if it fails but log warning
             if not self._set_auth_cookies_optimized(
-                f"{self.TRADINGVIEW_CHART_BASE_URL}{self.chart_page_id}/?symbol={ticker}&interval={interval}"
+                f"{self.TRADINGVIEW_CHART_BASE_URL}{self.chart_page_id}/?symbol={ticker}&interval={interval}&theme=dark"
             ):
                 self.logger.warning(
                     "Proceeding without guaranteed authentication (cookies not set)."
                 )
 
             self._navigate_and_wait(
-                f"{self.TRADINGVIEW_CHART_BASE_URL}{self.chart_page_id}/?symbol={ticker}&interval={interval}"
+                f"{self.TRADINGVIEW_CHART_BASE_URL}{self.chart_page_id}/?symbol={ticker}&interval={interval}&theme=dark"
             )
 
             clipboard_link = self._trigger_screenshot_and_get_link()

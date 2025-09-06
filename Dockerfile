@@ -5,10 +5,17 @@ FROM python:3.11-slim
 # Prevent interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install Chromium and Chromedriver for Selenium
+# Install Google Chrome for Selenium.
+# The webdriver-manager library in Python will automatically download the correct ChromeDriver.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       chromium-driver chromium \
+       wget \
+       gnupg \
+    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+       google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -24,11 +31,9 @@ COPY . .
 # Ensure the Python script is executable
 RUN chmod +x main.py
 
-# Set environment variables for Chromium
-ENV CHROME_BIN=/usr/bin/chromium
-ENV PATH="/usr/bin/chromium-driver:${PATH}"
+# Expose port for FastAPI (when needed)
+EXPOSE 8003
 
-# Expose stdio interface
-# Default command
+# Default command - can be overridden in docker-compose
 ENTRYPOINT ["python", "main.py"]
 CMD []
